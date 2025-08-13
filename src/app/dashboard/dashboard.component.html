@@ -1,1 +1,72 @@
-<p>dasboard works!</p>
+<div class="split-screen-container">
+  <div class="split-screen-section left-section">
+    <mat-card class="filter-card">
+      <mat-card-header>
+        <mat-card-title>Meteorological Brief</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="requestsForm">
+          <div class="filter-field">
+            <p>Message Types:</p>
+            <div class="checkbox-container">
+              <div>
+                <mat-checkbox formControlName="metar">METAR</mat-checkbox>
+              </div>
+              <div>
+                <mat-checkbox formControlName="sigmet">SIGMET</mat-checkbox>
+              </div>
+              <div>
+                <mat-checkbox formControlName="taf">TAF</mat-checkbox>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-field">
+            <p>Airports:</p>
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput placeholder="Enter airports codes" formControlName="stations">
+              <mat-error *ngIf="requestsForm.get('stations')?.hasError('required')">
+                Airports are required
+              </mat-error>
+              <mat-error *ngIf="requestsForm.get('stations')?.hasError('invalidCodeList')">
+                Please enter only 4-character uppercase airport codes separated by spaces.
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="filter-field">
+            <p>Countries:</p>
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput placeholder="Enter countries codes" formControlName="countries">
+              <mat-error *ngIf="requestsForm.get('countries')?.hasError('required')">
+                Countries are required
+              </mat-error>
+              <mat-error *ngIf="requestsForm.get('countries')?.hasError('invalidCodeList')">
+                Please enter only 2-character uppercase country codes separated by spaces
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="action-button">
+            <button mat-raised-button color="primary"
+                    (click)="createBriefing()"
+                    [disabled]="!requestsForm.valid" >
+              Create Briefing
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="split-screen-section right-section">
+    <mat-card class="content-card">
+      <mat-card-header>
+        <mat-card-title>Content Widget</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>This is the right side widget content area.</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

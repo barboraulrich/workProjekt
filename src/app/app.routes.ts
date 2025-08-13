@@ -13,6 +13,6 @@ export const routes: Routes = [
 
 @NgModule({
   imports: [],
-  exports: [RouterModule, DashboardModule],
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}
