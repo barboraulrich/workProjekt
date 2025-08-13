@@ -19,6 +19,9 @@
                 <mat-checkbox formControlName="taf">TAF</mat-checkbox>
               </div>
             </div>
+            <mat-error *ngIf="requestsForm.hasError('noTypeSelected') && (requestsForm.dirty)">
+              At least one message type is required
+            </mat-error>
           </div>
 
           <div class="filter-field">

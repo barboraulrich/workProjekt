@@ -40,6 +40,8 @@ export class DashboardComponent {
       taf: [false],
       stations: ['', [Validators.required, this.codeListValidator(4)]],
       countries: ['', [Validators.required, this.codeListValidator(2)]],
+    }, {
+      validators: this.atLeastOneTypeValidator
     });
   }
 
@@ -52,15 +54,37 @@ export class DashboardComponent {
     };
   }
 
+  atLeastOneTypeValidator(group: FormGroup): ValidationErrors | null {
+    const metar = group.get('metar')?.value;
+    const sigmet = group.get('sigmet')?.value;
+    const taf = group.get('taf')?.value;
+
+    return metar || sigmet || taf ? null : { noTypeSelected: true };
+  }
+
   createBriefing() {
     if (this.requestsForm.valid) {
-    console.log("som tu");
-    const { metar, sigmet, taf, stations, countries } = this.requestsForm.value;
-    const messageTypes = [];
-    if (metar) messageTypes.push('METAR');
-    if (sigmet) messageTypes.push('SIGMET');
-    if (taf) messageTypes.push('TAF');
+      const { metar, sigmet, taf, stations, countries } = this.requestsForm.value;
+
+      const reportTypes = [];
+      if (metar) reportTypes.push('METAR');
+      if (sigmet) reportTypes.push('SIGMET');
+      if (taf) reportTypes.push('TAF_LONGTAF');
+
+      const stationsArray = stations ? stations.trim().split(/\s+/) : [];
+      const countriesArray = countries ? countries.trim().split(/\s+/) : [];
+
+      const formattedData = {
+        id: "briefing01",
+        reportTypes: reportTypes,
+        stations: stationsArray,
+        countries: countriesArray
+      };
+
+      console.log(formattedData);
+    } else {
+      // Mark all fields as touched to trigger validation messages
+      this.requestsForm.markAllAsTouched();
     }
-    console.log(this.requestsForm.value);
   }
 }
