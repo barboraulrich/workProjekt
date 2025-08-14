@@ -9,28 +9,26 @@
           <div class="filter-field">
             <p>Message Types:</p>
             <div class="checkbox-container">
-              <div>
-                <mat-checkbox formControlName="metar">METAR</mat-checkbox>
-              </div>
-              <div>
-                <mat-checkbox formControlName="sigmet">SIGMET</mat-checkbox>
-              </div>
-              <div>
-                <mat-checkbox formControlName="taf">TAF</mat-checkbox>
-              </div>
+              <mat-checkbox formControlName="metar">METAR</mat-checkbox>
+              <mat-checkbox formControlName="sigmet">SIGMET</mat-checkbox>
+              <mat-checkbox formControlName="taf">TAF</mat-checkbox>
             </div>
-            <mat-error *ngIf="requestsForm.hasError('noTypeSelected') && (requestsForm.dirty)">
+            @if (requestsForm.hasError('noTypeSelected') && (requestsForm.dirty)){
+            <mat-error>
               At least one message type is required
             </mat-error>
+            }
           </div>
 
           <div class="filter-field">
             <p>Airports:</p>
             <mat-form-field appearance="outline" class="full-width">
               <input matInput placeholder="Enter airports codes" formControlName="stations">
-              <mat-error *ngIf="requestsForm.get('stations')?.hasError('invalidCodeList')">
-                Please enter only 4-character uppercase airport codes separated by spaces.
+              @if(requestsForm.get('stations')?.hasError('invalidCodeList')){
+              <mat-error>
+                  Please enter only 4-character uppercase airport codes separated by spaces.
               </mat-error>
+                }
             </mat-form-field>
           </div>
 
@@ -38,16 +36,20 @@
             <p>Countries:</p>
             <mat-form-field appearance="outline" class="full-width">
               <input matInput placeholder="Enter countries codes" formControlName="countries">
-              <mat-error *ngIf="requestsForm.get('countries')?.hasError('invalidCodeList')">
-                Please enter only 2-character uppercase country codes separated by spaces
-              </mat-error>
+              @if(requestsForm.get('countries')?.hasError('invalidCodeList')){
+                <mat-error>
+                  Please enter only 2-character uppercase country codes separated by spaces
+                </mat-error>
+              }
             </mat-form-field>
           </div>
 
-          <div class="filter-field" *ngIf="requestsForm.hasError('noLocationSelected') && requestsForm.dirty">
-            <mat-error>
-              You must enter at least one country or one airport.
-            </mat-error>
+          <div class="filter-field">
+            @if (requestsForm.hasError('noLocationSelected') && requestsForm.dirty){
+              <mat-error>
+                You must enter at least one country or one airport.
+              </mat-error>
+            }
           </div>
 
           <div class="action-button">

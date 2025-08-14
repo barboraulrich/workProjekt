@@ -64,7 +64,6 @@ export class DashboardComponent {
     const metar = group.get('metar')?.value;
     const sigmet = group.get('sigmet')?.value;
     const taf = group.get('taf')?.value;
-
     return metar || sigmet || taf ? null : { noTypeSelected: true };
   }
 
@@ -77,29 +76,13 @@ export class DashboardComponent {
 
   createBriefing() {
     if (this.requestsForm.valid) {
-      const { metar, sigmet, taf, stations, countries } = this.requestsForm.value;
+      const { metar, sigmet, taf, stations, countries } = this.requestsForm.value
 
-      const reportTypes = [];
-      if (metar) reportTypes.push('METAR');
-      if (sigmet) reportTypes.push('SIGMET');
-      if (taf) reportTypes.push('TAF_LONGTAF');
+      const reportTypes:string[] = this.getTypeMessage(metar, sigmet, taf)
+      const stationsArray:string[] = this.arrayInput(stations)
+      const countriesArray:string[] = this.arrayInput(countries)
 
-      const stationsArray = stations ? stations.trim().split(/\s+/) : [];
-      const countriesArray = countries ? countries.trim().split(/\s+/) : [];
-
-      const formattedData = {
-        "id": "query01",
-        "method": "query",
-        "params": [
-          {
-            "id": "briefing01",
-            "reportTypes": reportTypes,
-            "stations": stationsArray,
-            "countries": countriesArray
-          }
-        ]
-      };
-      console.log(formattedData, 'formular co posielam do API');
+      const formattedData = this.requestData(reportTypes, stationsArray, countriesArray);
 
       this.weatherService.getWeatherInformation(formattedData).subscribe(
         response => {
@@ -110,6 +93,33 @@ export class DashboardComponent {
         },
         error => console.log(error));
     }
+  }
+
+  private getTypeMessage (metar: boolean, sigmet: boolean, taf: boolean): string[] {
+    const types:string[] = [];
+    if (metar) types.push('METAR');
+    if (sigmet) types.push('SIGMET');
+    if (taf) types.push('TAF_LONGTAF');
+    return types;
+  }
+
+  private arrayInput(value: string | null): string[] {
+    return value ? value.trim().split(/\s+/) : [];
+  }
+
+  private requestData(reportTypes: string[], stations: string[], countries: string[]) :{} {
+    return {
+      id: 'query01',
+      method: 'query',
+      params: [
+        {
+          id: 'briefing01',
+          reportTypes,
+          stations,
+          countries
+        }
+      ]
+    };
   }
 
   processWeatherData(data: any[]): void {

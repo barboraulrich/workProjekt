@@ -17,7 +17,7 @@ export interface WeatherData {
   templateUrl: './weather-table.component.html',
   styleUrls: ['./weather-table.component.css']
 })
-export class WeatherTableComponent implements OnInit {
+export class WeatherTableComponent {
   displayedColumns: string[] = ['station', 'datetime', 'data'];
   weatherData: WeatherData[] = [];
   groupedData: { [key: string]: any[] } = {};
@@ -32,9 +32,6 @@ export class WeatherTableComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
-  }
-
   processGroupedData(): void {
     this.weatherData = [];
     Object.keys(this.groupedData).forEach(stationId => {
@@ -47,7 +44,7 @@ export class WeatherTableComponent implements OnInit {
           datetime: new Date(item.receptionTime).toLocaleString("sk-SK"),
           data: this.colorizeCloudCover(item.text || item.raw || JSON.stringify(item))
         };
-        
+
         this.weatherData.push(weatherItem);
       });
     });
@@ -55,18 +52,14 @@ export class WeatherTableComponent implements OnInit {
 
   colorizeCloudCover(text: string): SafeHtml {
     if (!text) return '';
-    
-    // Regular expression to find cloud cover codes (BKN, FEW, SCT followed by 3 digits)
     const cloudRegex = /(BKN|FEW|SCT)(\d{3})/g;
-    
-    // Replace cloud cover codes with colored spans
+
     const colorizedText = text.replace(cloudRegex, (match, prefix, digits) => {
       const number = parseInt(digits, 10);
       const color = number <= 30 ? 'blue' : 'red';
       return `<span style="color: ${color};">${prefix}${digits}</span>`;
     });
-    
-    // Sanitize the HTML to prevent XSS attacks
+
     return this.sanitizer.bypassSecurityTrustHtml(colorizedText);
   }
 }
