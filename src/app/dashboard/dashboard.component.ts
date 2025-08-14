@@ -7,13 +7,12 @@ import {MatButtonModule} from '@angular/material/button';
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
-  FormArray,
-  FormControl,
   ValidationErrors, AbstractControl, ValidatorFn
 } from '@angular/forms';
 import {CommonModule} from '@angular/common';
+import {WeatherService} from '../services/weather.service';
+import {WeatherTableComponent} from '../weather-table/weather-table.component';
 
 @Component({
   selector: 'app-dasboard',
@@ -24,7 +23,8 @@ import {CommonModule} from '@angular/common';
     MatInputModule,
     MatButtonModule,
     ReactiveFormsModule,
-    CommonModule
+    CommonModule,
+    WeatherTableComponent
   ],
   standalone: true,
   templateUrl: './dashboard.component.html',
@@ -32,16 +32,22 @@ import {CommonModule} from '@angular/common';
 })
 export class DashboardComponent {
   requestsForm: FormGroup;
+  groupedWeatherData: { [key: string]: any[] } = {};
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder,
+              private weatherService: WeatherService)
+  {
     this.requestsForm = this.fb.group({
       metar: [false],
       sigmet: [false],
       taf: [false],
-      stations: ['', [Validators.required, this.codeListValidator(4)]],
-      countries: ['', [Validators.required, this.codeListValidator(2)]],
+      stations: ['', [this.codeListValidator(4)]],
+      countries: ['', [this.codeListValidator(2)]],
     }, {
-      validators: this.atLeastOneTypeValidator
+      validators: [
+        this.checkboxValidator,
+        this.locationValidator
+      ]
     });
   }
 
@@ -54,12 +60,19 @@ export class DashboardComponent {
     };
   }
 
-  atLeastOneTypeValidator(group: FormGroup): ValidationErrors | null {
+  checkboxValidator(group: FormGroup): ValidationErrors | null {
     const metar = group.get('metar')?.value;
     const sigmet = group.get('sigmet')?.value;
     const taf = group.get('taf')?.value;
 
     return metar || sigmet || taf ? null : { noTypeSelected: true };
+  }
+
+  locationValidator(group: FormGroup): ValidationErrors | null {
+    const stations = group.get('stations')?.value?.trim();
+    const countries = group.get('countries')?.value?.trim();
+
+    return stations || countries ? null : { noLocationSelected: true };
   }
 
   createBriefing() {
@@ -75,16 +88,41 @@ export class DashboardComponent {
       const countriesArray = countries ? countries.trim().split(/\s+/) : [];
 
       const formattedData = {
-        id: "briefing01",
-        reportTypes: reportTypes,
-        stations: stationsArray,
-        countries: countriesArray
+        "id": "query01",
+        "method": "query",
+        "params": [
+          {
+            "id": "briefing01",
+            "reportTypes": reportTypes,
+            "stations": stationsArray,
+            "countries": countriesArray
+          }
+        ]
       };
+      console.log(formattedData, 'formular co posielam do API');
 
-      console.log(formattedData);
-    } else {
-      // Mark all fields as touched to trigger validation messages
-      this.requestsForm.markAllAsTouched();
+      this.weatherService.getWeatherInformation(formattedData).subscribe(
+        response => {
+          console.log(response);
+          if (response && response.result && Array.isArray(response.result)) {
+            this.processWeatherData(response.result);
+          }
+        },
+        error => console.log(error));
     }
+  }
+
+  processWeatherData(data: any[]): void {
+    this.groupedWeatherData = {};
+
+    data.forEach(item => {
+      const stationId = item.stationId || 'unknown';
+      if (!this.groupedWeatherData[stationId]) {
+        this.groupedWeatherData[stationId] = [];
+      }
+      this.groupedWeatherData[stationId].push(item);
+    });
+
+    console.log('Grouped Weather Data:', this.groupedWeatherData);
   }
 }

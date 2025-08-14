@@ -28,9 +28,6 @@
             <p>Airports:</p>
             <mat-form-field appearance="outline" class="full-width">
               <input matInput placeholder="Enter airports codes" formControlName="stations">
-              <mat-error *ngIf="requestsForm.get('stations')?.hasError('required')">
-                Airports are required
-              </mat-error>
               <mat-error *ngIf="requestsForm.get('stations')?.hasError('invalidCodeList')">
                 Please enter only 4-character uppercase airport codes separated by spaces.
               </mat-error>
@@ -41,13 +38,16 @@
             <p>Countries:</p>
             <mat-form-field appearance="outline" class="full-width">
               <input matInput placeholder="Enter countries codes" formControlName="countries">
-              <mat-error *ngIf="requestsForm.get('countries')?.hasError('required')">
-                Countries are required
-              </mat-error>
               <mat-error *ngIf="requestsForm.get('countries')?.hasError('invalidCodeList')">
                 Please enter only 2-character uppercase country codes separated by spaces
               </mat-error>
             </mat-form-field>
+          </div>
+
+          <div class="filter-field" *ngIf="requestsForm.hasError('noLocationSelected') && requestsForm.dirty">
+            <mat-error>
+              You must enter at least one country or one airport.
+            </mat-error>
           </div>
 
           <div class="action-button">
@@ -65,10 +65,10 @@
   <div class="split-screen-section right-section">
     <mat-card class="content-card">
       <mat-card-header>
-        <mat-card-title>Content Widget</mat-card-title>
+        <mat-card-title>Weather Data</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <p>This is the right side widget content area.</p>
+        <app-weather-table [weatherDataInput]="groupedWeatherData"></app-weather-table>
       </mat-card-content>
     </mat-card>
   </div>
