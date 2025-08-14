@@ -2,14 +2,7 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-
-interface WeatherData {
-  station: string;
-  type: string;
-  datetime: string;
-  data: SafeHtml;
-  isStationHeader?: boolean;
-}
+import { WeatherData, GroupedWeatherData } from '../shared/models/weather.model';
 
 @Component({
   selector: 'app-weather-table',
@@ -21,9 +14,9 @@ interface WeatherData {
 export class WeatherTableComponent {
   displayedColumns: string[] = ['station', 'datetime', 'data'];
   weatherData: WeatherData[] = [];
-  groupedData: { [key: string]: any[] } = {};
+  groupedData: GroupedWeatherData = {};
 
-  @Input() set groupedWeatherData(data: { [key: string]: any[] }) {
+  @Input() set groupedWeatherData(data: GroupedWeatherData) {
     this.groupedData = data || {};
     if (Object.keys(this.groupedData).length > 0) {
       this.processGroupedData();

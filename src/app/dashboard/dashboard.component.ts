@@ -13,6 +13,7 @@ import {
 import {CommonModule} from '@angular/common';
 import {WeatherService} from '../shared/services/weather.service';
 import {WeatherTableComponent} from '../weather-table/weather-table.component';
+import {WeatherApiResponse, WeatherData, WeatherReport, WeatherRequest} from '../shared/models/weather.model'
 
 @Component({
   selector: 'app-dasboard',
@@ -70,23 +71,20 @@ export class DashboardComponent {
   locationValidator(group: FormGroup): ValidationErrors | null {
     const stations = group.get('stations')?.value?.trim();
     const countries = group.get('countries')?.value?.trim();
-
     return stations || countries ? null : { noLocationSelected: true };
   }
 
   createBriefing() {
     if (this.requestsForm.valid) {
       const { metar, sigmet, taf, stations, countries } = this.requestsForm.value
-
       const reportTypes:string[] = this.getTypeMessage(metar, sigmet, taf)
       const stationsArray:string[] = this.arrayInput(stations)
       const countriesArray:string[] = this.arrayInput(countries)
-
-      const formattedData = this.requestData(reportTypes, stationsArray, countriesArray);
+      const formattedData: WeatherRequest = this.requestData(reportTypes, stationsArray, countriesArray);
 
       this.weatherService.getWeatherInformation(formattedData).subscribe(
-        response => {
-          console.log(response);
+        (response: WeatherApiResponse) => {
+          console.log(response, "response");
           if (response && response.result && Array.isArray(response.result)) {
             this.processWeatherData(response.result);
           }
@@ -107,7 +105,7 @@ export class DashboardComponent {
     return value ? value.trim().split(/\s+/) : [];
   }
 
-  private requestData(reportTypes: string[], stations: string[], countries: string[]) :{} {
+  private requestData(reportTypes: string[], stations: string[], countries: string[]): WeatherRequest {
     return {
       id: 'query01',
       method: 'query',
@@ -122,17 +120,14 @@ export class DashboardComponent {
     };
   }
 
-  processWeatherData(data: any[]): void {
+  processWeatherData(data: WeatherReport[]): void {
     this.groupedWeatherData = {};
-
-    data.forEach(item => {
-      const stationId = item.stationId || 'unknown';
+    data.forEach(item  => {
+      const stationId: string = item.stationId || 'unknown';
       if (!this.groupedWeatherData[stationId]) {
         this.groupedWeatherData[stationId] = [];
       }
       this.groupedWeatherData[stationId].push(item);
     });
-
-    console.log('Grouped Weather Data:', this.groupedWeatherData);
   }
 }
