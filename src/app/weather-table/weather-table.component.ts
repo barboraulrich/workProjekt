@@ -1,12 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 export interface WeatherData {
   station: string;
   type: string;
   datetime: string;
-  data: string;
+  data: string | SafeHtml;
 }
 
 @Component({
@@ -21,6 +22,8 @@ export class WeatherTableComponent implements OnInit {
   weatherData: WeatherData[] = [];
   groupedData: { [key: string]: any[] } = {};
 
+  constructor(private sanitizer: DomSanitizer) {}
+
   @Input() set weatherDataInput(data: { [key: string]: any[] } | null) {
     if (data && Object.keys(data).length > 0) {
       this.groupedData = data;
@@ -29,7 +32,7 @@ export class WeatherTableComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
   }
 
   processGroupedData(): void {
@@ -38,15 +41,32 @@ export class WeatherTableComponent implements OnInit {
       const items = this.groupedData[stationId];
 
       items.forEach(item => {
-
-        this.weatherData.push({
+        const weatherItem: WeatherData = {
           station: stationId,
           type: item.queryType || 'UNKNOWN',
           datetime: new Date(item.receptionTime).toLocaleString("sk-SK"),
-          data: item.text || item.raw || JSON.stringify(item)
-        });
+          data: this.colorizeCloudCover(item.text || item.raw || JSON.stringify(item))
+        };
+        
+        this.weatherData.push(weatherItem);
       });
     });
   }
 
+  colorizeCloudCover(text: string): SafeHtml {
+    if (!text) return '';
+    
+    // Regular expression to find cloud cover codes (BKN, FEW, SCT followed by 3 digits)
+    const cloudRegex = /(BKN|FEW|SCT)(\d{3})/g;
+    
+    // Replace cloud cover codes with colored spans
+    const colorizedText = text.replace(cloudRegex, (match, prefix, digits) => {
+      const number = parseInt(digits, 10);
+      const color = number <= 30 ? 'blue' : 'red';
+      return `<span style="color: ${color};">${prefix}${digits}</span>`;
+    });
+    
+    // Sanitize the HTML to prevent XSS attacks
+    return this.sanitizer.bypassSecurityTrustHtml(colorizedText);
+  }
 }
