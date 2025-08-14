@@ -33,3 +33,16 @@ tr.mat-row:nth-child(even) {
 tr.mat-row:hover {
   background-color: #f0f0f0;
 }
+
+.station-header {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.station-row {
+  background-color: #e0e0e0 !important;
+}
+
+.station-row td {
+  border-top: 1px solid #bdbdbd;
+}
