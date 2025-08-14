@@ -11,7 +11,7 @@ import {
   ValidationErrors, AbstractControl, ValidatorFn
 } from '@angular/forms';
 import {CommonModule} from '@angular/common';
-import {WeatherService} from '../services/weather.service';
+import {WeatherService} from '../shared/services/weather.service';
 import {WeatherTableComponent} from '../weather-table/weather-table.component';
 
 @Component({
@@ -91,7 +91,7 @@ export class DashboardComponent {
             this.processWeatherData(response.result);
           }
         },
-        error => console.log(error));
+        error => console.log(error.message));
     }
   }
 
