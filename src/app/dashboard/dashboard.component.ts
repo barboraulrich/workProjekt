@@ -35,6 +35,8 @@ export class DashboardComponent {
   requestsForm: FormGroup;
   groupedWeatherData: Record<string, WeatherReport[]> = {};
   errorMessage: string | null = null;
+  randomNumber: number = 0;
+
 
   constructor(private fb: FormBuilder,
               private weatherService: WeatherService)
@@ -110,12 +112,13 @@ export class DashboardComponent {
   }
 
   private requestData(reportTypes: string[], stations: string[], countries: string[]): WeatherRequest {
+    this.randomNumber = this.generateRandNum();
     return {
-      id: 'query01',
+      id: 'query'+this.randomNumber,
       method: 'query',
       params: [
         {
-          id: 'briefing01',
+          id: 'briefing'+this.randomNumber,
           reportTypes,
           stations,
           countries
@@ -133,5 +136,9 @@ export class DashboardComponent {
       }
       this.groupedWeatherData[stationId].push(item);
     });
+  }
+
+  generateRandNum(): number {
+    return Math.floor(Math.random() * 99) + 1;
   }
 }

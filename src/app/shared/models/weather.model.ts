@@ -49,5 +49,5 @@ export type GroupedWeatherData = {
 export enum ReportType {
   METAR = 'METAR',
   SIGMET = 'SIGMET',
-  TAF = 'TAF_LONGTAF'
+  TAF = 'TAF'
 }
