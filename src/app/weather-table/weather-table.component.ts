@@ -1,4 +1,4 @@
-import {Component, Input, model, OnChanges} from '@angular/core';
+import { Component, Input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -12,31 +12,26 @@ import {GroupedWeatherData, WeatherData} from '../shared/models/weather.model';
   styleUrls: ['./weather-table.component.css']
 })
 
-export class WeatherTableComponent implements OnChanges {
+export class WeatherTableComponent {
 
   displayedColumns: string[] = ['station', 'datetime', 'data'];
   weatherData: WeatherData[] = [];
   groupedData: GroupedWeatherData = {};
 
-  groupedWeatherData = model<GroupedWeatherData>({});
+  @Input() set groupedWeatherData(data: GroupedWeatherData | null) {
+    this.groupedData = data || {};
+    if (Object.keys(this.groupedData).length > 0) {
+      this.processGroupedData();
+    }
+  }
 
   constructor(private sanitizer: DomSanitizer) {}
 
-  ngOnChanges(): void {
-    this.processGroupedData();
-  }
-
   processGroupedData(): void {
-    const data = this.groupedWeatherData();
-    if (!data || Object.keys(data).length === 0) {
-      this.weatherData = [];
-      return;
-    }
+    this.weatherData = [];
 
-    const processedData: WeatherData[] = [];
-
-    Object.entries(data).forEach(([stationId, items]) => {
-      processedData.push({
+    Object.keys(this.groupedData).forEach(stationId => {
+      this.weatherData.push({
         station: stationId,
         type: '',
         datetime: '',
@@ -44,6 +39,7 @@ export class WeatherTableComponent implements OnChanges {
         isStationHeader: true
       });
 
+      const items = this.groupedData[stationId];
       items.forEach(item => {
         const weatherItem: WeatherData = {
           station: stationId,
@@ -53,11 +49,9 @@ export class WeatherTableComponent implements OnChanges {
           isStationHeader: false
         };
 
-        processedData.push(weatherItem);
+        this.weatherData.push(weatherItem);
       });
     });
-
-    this.weatherData = processedData;
   }
 
   colorizeCloudCover(text: string): SafeHtml {
