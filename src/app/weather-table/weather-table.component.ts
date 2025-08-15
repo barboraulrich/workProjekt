@@ -1,8 +1,8 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { WeatherData, GroupedWeatherData } from '../shared/models/weather.model';
+import {GroupedWeatherData, WeatherData} from '../shared/models/weather.model';
 
 @Component({
   selector: 'app-weather-table',
@@ -11,12 +11,14 @@ import { WeatherData, GroupedWeatherData } from '../shared/models/weather.model'
   templateUrl: './weather-table.component.html',
   styleUrls: ['./weather-table.component.css']
 })
+
 export class WeatherTableComponent {
+
   displayedColumns: string[] = ['station', 'datetime', 'data'];
   weatherData: WeatherData[] = [];
   groupedData: GroupedWeatherData = {};
 
-  @Input() set groupedWeatherData(data: GroupedWeatherData) {
+  @Input() set groupedWeatherData(data: GroupedWeatherData | null) {
     this.groupedData = data || {};
     if (Object.keys(this.groupedData).length > 0) {
       this.processGroupedData();
@@ -41,9 +43,9 @@ export class WeatherTableComponent {
       items.forEach(item => {
         const weatherItem: WeatherData = {
           station: stationId,
-          type: item.queryType || 'UNKNOWN',
+          type: item.queryType,
           datetime: new Date(item.receptionTime).toLocaleString("sk-SK"),
-          data: this.colorizeCloudCover(item.text || item.raw || JSON.stringify(item)),
+          data: this.colorizeCloudCover(item.text),
           isStationHeader: false
         };
 

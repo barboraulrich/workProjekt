@@ -13,7 +13,7 @@ import {
 import {CommonModule} from '@angular/common';
 import {WeatherService} from '../shared/services/weather.service';
 import {WeatherTableComponent} from '../weather-table/weather-table.component';
-import {WeatherApiResponse, WeatherData, WeatherReport, WeatherRequest} from '../shared/models/weather.model'
+import {WeatherApiResponse, WeatherReport, WeatherRequest} from '../shared/models/weather.model'
 
 @Component({
   selector: 'app-dasboard',
@@ -33,8 +33,7 @@ import {WeatherApiResponse, WeatherData, WeatherReport, WeatherRequest} from '..
 })
 export class DashboardComponent {
   requestsForm: FormGroup;
-  groupedWeatherData: { [key: string]: any[] } = {};
-
+  groupedWeatherData: Record<string, WeatherReport[]> = {};
   constructor(private fb: FormBuilder,
               private weatherService: WeatherService)
   {
@@ -69,21 +68,21 @@ export class DashboardComponent {
   }
 
   locationValidator(group: FormGroup): ValidationErrors | null {
-    const stations = group.get('stations')?.value?.trim();
-    const countries = group.get('countries')?.value?.trim();
-    return stations || countries ? null : { noLocationSelected: true };
+    const stations = String(group.get('stations')?.value || '').trim();
+    const countries = String(group.get('countries')?.value || '').trim();
+    return stations !== "" || countries !== "" ? null : { noLocationSelected: true };
   }
 
   createBriefing() {
     if (this.requestsForm.valid) {
       const { metar, sigmet, taf, stations, countries } = this.requestsForm.value
-      const reportTypes:string[] = this.getTypeMessage(metar, sigmet, taf)
+      const reportTypes:string[] = this.getReportTypes(metar, sigmet, taf)
       const stationsArray:string[] = this.arrayInput(stations)
       const countriesArray:string[] = this.arrayInput(countries)
       const formattedData: WeatherRequest = this.requestData(reportTypes, stationsArray, countriesArray);
 
       this.weatherService.getWeatherInformation(formattedData).subscribe(
-        (response: WeatherApiResponse) => {
+        (response) => {
           console.log(response, "response");
           if (response && response.result && Array.isArray(response.result)) {
             this.processWeatherData(response.result);
@@ -93,13 +92,14 @@ export class DashboardComponent {
     }
   }
 
-  private getTypeMessage (metar: boolean, sigmet: boolean, taf: boolean): string[] {
+  private getReportTypes (metar: boolean, sigmet: boolean, taf: boolean): string[] {
     const types:string[] = [];
     if (metar) types.push('METAR');
     if (sigmet) types.push('SIGMET');
-    if (taf) types.push('TAF_LONGTAF');
+    if (taf) types.push('TAF');
     return types;
   }
+  //pridaj enum namiesto message typu
 
   private arrayInput(value: string | null): string[] {
     return value ? value.trim().split(/\s+/) : [];
@@ -123,7 +123,7 @@ export class DashboardComponent {
   processWeatherData(data: WeatherReport[]): void {
     this.groupedWeatherData = {};
     data.forEach(item  => {
-      const stationId: string = item.stationId || 'unknown';
+      const stationId: string = item.stationId;
       if (!this.groupedWeatherData[stationId]) {
         this.groupedWeatherData[stationId] = [];
       }

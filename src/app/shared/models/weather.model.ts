@@ -21,10 +21,6 @@ export interface WeatherData {
   isStationHeader?: boolean;
 }
 
-export interface GroupedWeatherData {
-  [stationId: string]: any[];
-}
-
 
 export interface WeatherReport {
   placeId: string;
@@ -38,10 +34,14 @@ export interface WeatherReport {
   textHTML: string;
   validFrom?: string;
   validTo?: string;
-};
+}
 
 export interface WeatherApiResponse  {
   error: string | null;
   id: string;
   result: WeatherReport[];
-};
+}
+
+export type GroupedWeatherData = {
+  [stationId: string]: WeatherReport[];
+}
