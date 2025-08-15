@@ -17,13 +17,7 @@
 
     <ng-container matColumnDef="datetime">
       <th mat-header-cell *matHeaderCellDef>Date/Time</th>
-      <td mat-cell *matCellDef="let element">
-        @if (element.isStationHeader){
-          <div>
-            {{element.datetime}}
-          </div>
-        }
-      </td>
+      <td mat-cell *matCellDef="let element">{{element.datetime}}</td>
     </ng-container>
 
     <ng-container matColumnDef="data">

@@ -59,6 +59,11 @@
               Create Briefing
             </button>
           </div>
+          @if (errorMessage){
+            <div class="error-message">
+              <p class="error-text">{{ errorMessage }}</p>
+            </div>
+          }
         </form>
       </mat-card-content>
     </mat-card>

@@ -13,27 +13,29 @@ import {
 import {CommonModule} from '@angular/common';
 import {WeatherService} from '../shared/services/weather.service';
 import {WeatherTableComponent} from '../weather-table/weather-table.component';
-import {WeatherApiResponse, WeatherReport, WeatherRequest, ReportType} from '../shared/models/weather.model'
+import { WeatherReport, WeatherRequest, ReportType} from '../shared/models/weather.model'
 
 @Component({
   selector: 'app-dasboard',
+  standalone: true,
   imports: [
+    ReactiveFormsModule,
     MatCardModule,
     MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    ReactiveFormsModule,
     CommonModule,
     WeatherTableComponent
   ],
-  standalone: true,
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent {
   requestsForm: FormGroup;
   groupedWeatherData: Record<string, WeatherReport[]> = {};
+  errorMessage: string | null = null;
+
   constructor(private fb: FormBuilder,
               private weatherService: WeatherService)
   {
@@ -81,14 +83,17 @@ export class DashboardComponent {
       const countriesArray:string[] = this.arrayInput(countries)
       const formattedData: WeatherRequest = this.requestData(reportTypes, stationsArray, countriesArray);
 
-      this.weatherService.getWeatherInformation(formattedData).subscribe(
-        (response) => {
-          console.log(response, "response");
+      this.weatherService.getWeatherInformation(formattedData).subscribe({
+        next: (response) => {
+          this.errorMessage = null;
           if (response && response.result && Array.isArray(response.result)) {
             this.processWeatherData(response.result);
           }
         },
-        error => console.log(error.message));
+        error: (error) => {
+          this.errorMessage = error.message
+        }
+      });
     }
   }
 
