@@ -24,7 +24,7 @@ export interface WeatherData {
 
 export interface WeatherReport {
   placeId: string;
-  queryType: "METAR" | "TAF" | "SIGMET"  ;
+  queryType: ReportType;
   receptionTime: string;
   refs: string[];
   reportTime: string;
@@ -44,4 +44,10 @@ export interface WeatherApiResponse  {
 
 export type GroupedWeatherData = {
   [stationId: string]: WeatherReport[];
+}
+
+export enum ReportType {
+  METAR = 'METAR',
+  SIGMET = 'SIGMET',
+  TAF = 'TAF'
 }

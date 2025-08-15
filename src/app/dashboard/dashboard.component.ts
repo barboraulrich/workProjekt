@@ -13,7 +13,7 @@ import {
 import {CommonModule} from '@angular/common';
 import {WeatherService} from '../shared/services/weather.service';
 import {WeatherTableComponent} from '../weather-table/weather-table.component';
-import {WeatherApiResponse, WeatherReport, WeatherRequest} from '../shared/models/weather.model'
+import {WeatherApiResponse, WeatherReport, WeatherRequest, ReportType} from '../shared/models/weather.model'
 
 @Component({
   selector: 'app-dasboard',
@@ -94,12 +94,11 @@ export class DashboardComponent {
 
   private getReportTypes (metar: boolean, sigmet: boolean, taf: boolean): string[] {
     const types:string[] = [];
-    if (metar) types.push('METAR');
-    if (sigmet) types.push('SIGMET');
-    if (taf) types.push('TAF');
+    if (metar) types.push(ReportType.METAR);
+    if (sigmet) types.push(ReportType.SIGMET);
+    if (taf) types.push(ReportType.TAF);
     return types;
   }
-  //pridaj enum namiesto message typu
 
   private arrayInput(value: string | null): string[] {
     return value ? value.trim().split(/\s+/) : [];
