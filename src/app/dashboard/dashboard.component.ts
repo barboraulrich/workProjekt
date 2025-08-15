@@ -16,7 +16,7 @@ import {WeatherTableComponent} from '../weather-table/weather-table.component';
 import { WeatherReport, WeatherRequest, ReportType} from '../shared/models/weather.model'
 
 @Component({
-  selector: 'app-dasboard',
+  selector: 'app-dashboard',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -33,10 +33,9 @@ import { WeatherReport, WeatherRequest, ReportType} from '../shared/models/weath
 })
 export class DashboardComponent {
   requestsForm: FormGroup;
-  groupedWeatherData: Record<string, WeatherReport[]> = {};
+  weatherData: Record<string, WeatherReport[]> = {};
   errorMessage: string | null = null;
   randomNumber: number = 0;
-
 
   constructor(private fb: FormBuilder,
               private weatherService: WeatherService)
@@ -128,13 +127,13 @@ export class DashboardComponent {
   }
 
   processWeatherData(data: WeatherReport[]): void {
-    this.groupedWeatherData = {};
+    this.weatherData = {};
     data.forEach(item  => {
       const stationId: string = item.stationId;
-      if (!this.groupedWeatherData[stationId]) {
-        this.groupedWeatherData[stationId] = [];
+      if (!this.weatherData[stationId]) {
+        this.weatherData[stationId] = [];
       }
-      this.groupedWeatherData[stationId].push(item);
+      this.weatherData[stationId].push(item);
     });
   }
 
